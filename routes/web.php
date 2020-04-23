@@ -78,6 +78,10 @@ $router->group(
                     '{slug:[a-z0-9]+(?:-[a-z0-9]+)*}/rates[/{perPage:[0-9]+}]',
                     'RateController@index'
                 );
+                $router->post(
+                    '{slug:[a-z0-9]+(?:-[a-z0-9]+)*}/rates',
+                    'RateController@store'
+                );
             }
         );
     }

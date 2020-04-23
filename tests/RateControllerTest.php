@@ -11,11 +11,7 @@ class RateControllerTest extends TestCase
 
     public function testUnAuthrizedUserCanNotLoadRates()
     {
-        $p = Product::find(20);
-
-        $this->get(
-            self::PRODUCT_BASE . $p->slug . '/' . self::BASE_URL
-        )->seeStatusCode(401);
+        $this->get($this->getBaseUrl())->seeStatusCode(401);
     }
 
     public function testLodingProductRatesBySlug()
@@ -23,12 +19,53 @@ class RateControllerTest extends TestCase
         $this->withoutExceptionHandling();
         $this->passportSignIn();
 
-        $p = Product::find(20);
+        [$p, $baseUrl] = $this->getBaseUrl();
 
-        $this->get(
-            self::PRODUCT_BASE . $p->slug . '/' . self::BASE_URL.'/8'
-        )->seeStatusCode(200)
-        ->seeJsonContains(['per_page' => 8])
-        ->seeJsonContains(['rate' => $p->rates->first()->rate]);
+        $this->get($baseUrl . '/8')->seeStatusCode(200)
+            ->seeJsonContains(['per_page' => 8])
+            ->seeJsonContains(['rate' => $p->rates->first()->rate]);
+    }
+
+    public function testUserCanNotAddRateWithInvalidData()
+    {
+        $this->passportSignIn();
+
+        [$p, $baseUrl] = $this->getBaseUrl();
+
+        $this->post($baseUrl, [])
+            ->seeStatusCode(422);
+    }
+
+    public function testUserCanAddRateOnlyOnce()
+    {
+        $this->passportSignIn();
+
+        $p = factory(Product::class)->create();
+
+        [$p, $baseUrl] = $this->getBaseUrl($p->id);
+
+        $message = 'some words combined';
+
+        $this->post($baseUrl, [
+            'rate' => random_int(1, 5),
+            'message' => $message
+        ])->seeStatusCode(201)
+            ->seeJsonContains(['message' => $message]);
+
+        $this->seeInDatabase('rates', ['message' => $message]);
+
+        $this->post($baseUrl, [
+            'rate' => random_int(1, 5),
+            'message' => $message
+        ])->seeStatusCode(403);
+    }
+
+    private function getBaseUrl(
+        int $productId = null
+    ): array {
+        $p = Product::find($productId ?? random_int(20, 200));
+        $baseUrl = self::PRODUCT_BASE . $p->slug . '/' . self::BASE_URL;
+
+        return [$p, $baseUrl];
     }
 }

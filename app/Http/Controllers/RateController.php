@@ -9,6 +9,10 @@ use Illuminate\Http\Request;
 class RateController extends Controller
 {
     public const PER_PAGE = 7;
+    public const VALIDATE_ROLES = [
+        'rate' => 'required|numeric|min:1|max:5',
+        'message' => 'sometimes|string|max:196'
+    ];
 
     /**
      * Display a listing of the resource.
@@ -19,8 +23,8 @@ class RateController extends Controller
         string $slug,
         int $perPage = self::PER_PAGE
     ) {
-        $p = Product::whereSlug($slug)
-                ->get('id')[0];
+        $p = Product::without('rates')->whereSlug($slug)
+            ->get('id')[0];
 
         return response()->json(
             Rate::whereProductId($p->id)->paginate($perPage)
@@ -33,9 +37,30 @@ class RateController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request, string $slug)
     {
-        //
+        $r = (object) $this->validate($request, self::VALIDATE_ROLES);
+
+        $p = Product::without('rates')->whereSlug($slug)
+            ->get('id')[0];
+        $userId = auth()->guard('api')->id();
+
+        $found = Rate::selectRaw('COUNT(id) as c_id')
+            ->whereUserId($userId)
+            ->whereProductId($p->id)
+            ->get('c_id')[0];
+
+        if ((int)$found->c_id > 0) {
+            abort(403);
+        }
+
+        $rate = $p->rates()->create([
+            'user_id' => $userId,
+            'rate' => $r->rate,
+            'message' => $r->message
+        ]);
+
+        return response()->json($rate, 201);
     }
 
     /**

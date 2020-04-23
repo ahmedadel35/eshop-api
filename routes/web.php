@@ -47,6 +47,7 @@ $router->group(
                     'sub/{slug:[a-z0-9]+(?:-[a-z0-9]+)*}[/{perPage:[0-9]+}]',
                     'ProductController@indexSubCat'
                 );
+                $router->get('collect/{ids:[0-9]+(?:,[0-9]+)*}', 'ProductController@showCollection');
             }
         );
     }

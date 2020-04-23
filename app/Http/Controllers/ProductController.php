@@ -70,6 +70,30 @@ class ProductController extends Controller
     }
 
     /**
+     * Display list of the provider products ids
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function showCollection(Request $request, string $ids)
+    {
+        $ids = explode(',', $ids);
+
+        if (sizeof($ids) > 500) {
+            return response()->json([], 413);
+        }
+
+        if (!$request->has('rates')) {
+            return response()->json(
+                Product::without('rates')->findMany($ids)->makeVisible('rateAvg')
+            );
+        }
+
+        return response()->json(
+            Product::findMany($ids)->makeVisible('rateAvg')
+        );
+    }
+
+    /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request

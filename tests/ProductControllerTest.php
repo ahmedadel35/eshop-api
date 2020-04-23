@@ -3,6 +3,7 @@
 use App\Category;
 use App\Http\Controllers\ProductController;
 use App\Product;
+use Illuminate\Support\Arr;
 use Laravel\Lumen\Testing\DatabaseMigrations;
 use Laravel\Lumen\Testing\DatabaseTransactions;
 
@@ -84,6 +85,42 @@ class ProductControllerTest extends TestCase
             ->seeJsonContains(
                 ['current_page' => 2, 'per_page' => 30]
             );
+    }
+
+    public function testLoadingListOfProductsByIds()
+    {
+        $this->passportSignIn();
+
+        $products = Product::all();
+
+        $ids = Arr::random($products->pluck('id')->toArray(), 10);
+        
+        // load with rates
+        $this->get(
+            self::BASE_URL . 'collect/'.implode(',', $ids) . '?rates=1'
+        )->seeStatusCode(200)
+            ->seeJsonContains((Product::find($ids[0]))->toArray());
+
+        // load without rates
+        $this->get(
+            self::BASE_URL . 'collect/'.implode(',', $ids)
+        )->seeStatusCode(200)
+            ->seeJsonContains((Product::without('rates')->find($ids[0]))->toArray());
+    }
+
+    public function testLoadingListOfProductsByIdsRequiresIdsListIsLessThanOneThousand()
+    {
+        // $this->withoutExceptionHandling();
+        $this->passportSignIn();
+
+        $products = Product::all();
+
+        $ids = Arr::random($products->pluck('id')->toArray(), 501);
+        
+        // load with rates
+        $this->get(
+            self::BASE_URL . 'collect/'.implode(',', $ids) . '?rates=1'
+        )->seeStatusCode(413);
     }
 
     public function loadingAllProductsDataProvider(): array

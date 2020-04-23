@@ -13,7 +13,7 @@ class CategoryControllerTest extends TestCase
     use DatabaseTransactions;
 
 
-    private const BASE_URL = '/categories';
+    private const BASE_URL = '/categories/';
 
     public function testOnlyAuthrizedAppCanGetBaseCategoriesList()
     {
@@ -28,10 +28,34 @@ class CategoryControllerTest extends TestCase
             factory(User::class)->create()
         );
 
-        $this->get(self::BASE_URL . '/base')
+        $this->get(self::BASE_URL . 'base')
             ->seeStatusCode(200)
             ->seeJsonEquals(
                 Category::whereNull('category_id')->get()->toArray()
+            );
+    }
+
+    public function testUserCanGetSubCategoriesIds()
+    {
+        Passport::actingAs(
+            factory(User::class)->create()
+        );
+
+        $this->get(self::BASE_URL . 'sub/ids')
+            ->seeStatusCode(200)
+            ->seeJsonContains(['id' => 5]);
+    }
+
+    public function testUserCanGetSubCategoriesList()
+    {
+        Passport::actingAs(
+            factory(User::class)->create()
+        );
+
+        $this->get(self::BASE_URL . 'sub/list')
+            ->seeStatusCode(200)
+            ->seeJsonEquals(
+                Category::whereNotNull('category_id')->with('parent')->get()->toArray()
             );
     }
 }

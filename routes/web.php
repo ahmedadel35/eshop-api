@@ -24,6 +24,8 @@ $router->group(
         $router->group(['prefix' => 'categories'],
         function () use ($router) {
             $router->get('base', 'CategoryController@index');
+            $router->get('sub/ids', 'CategoryController@getSubIds');
+            $router->get('sub/list', 'CategoryController@getSubList');
         });
     }
 );

@@ -19,6 +19,22 @@ class CategoryController extends Controller
         );
     }
 
+    public function getSubIds()
+    {
+        return response()->json(
+            Category::whereNotNull('category_id')->get('id')
+        );
+    }
+
+    public function getSubList()
+    {
+        return response()->json(
+            Category::whereNotNull('category_id')->with('parent')->get()
+        );
+    }
+
+    
+
     /**
      * Show the form for creating a new resource.
      *

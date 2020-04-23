@@ -24,7 +24,6 @@ class Product extends Model
     protected $with = ['rates'];
 
     protected $appends = [
-        'rateAvg',
         'savedPrice'
     ];
 

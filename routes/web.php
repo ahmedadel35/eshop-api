@@ -21,17 +21,27 @@ $router->group(
     ['middleware' => ['auth:api', 'throttle:30,1']],
     function () use ($router) {
         // categories
-        $router->group(['prefix' => 'categories'],
-        function () use ($router) {
-            $router->get('base', 'CategoryController@index');
-            $router->get('sub/ids', 'CategoryController@getSubIds');
-            $router->get('sub/list', 'CategoryController@getSubList');
-            $router->get('/sub/{slug}', 'CategoryController@show');
+        $router->group(
+            ['prefix' => 'categories'],
+            function () use ($router) {
+                $router->get('base', 'CategoryController@index');
+                $router->get('sub/ids', 'CategoryController@getSubIds');
+                $router->get('sub/list', 'CategoryController@getSubList');
+                $router->get('/sub/{slug}', 'CategoryController@show');
 
-            $router->post('/sub', [
-                'middleware' => 'scopes:create-sub',
-                'uses' => 'CategoryController@store'
-            ]);
-        });
+                $router->post('/sub', [
+                    'middleware' => 'scopes:create-sub',
+                    'uses' => 'CategoryController@store'
+                ]);
+            }
+        );
+
+        // products
+        $router->group(
+            ['prefix' => 'products'],
+            function () use ($router) {
+                $router->get('ids[/{perPage:[0-9]+}]', 'ProductController@indexIds');
+            }
+        );
     }
 );

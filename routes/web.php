@@ -28,7 +28,10 @@ $router->group(
             $router->get('sub/list', 'CategoryController@getSubList');
             $router->get('/sub/{slug}', 'CategoryController@show');
 
-            $router->post('/sub', 'CategoryController@store');
+            $router->post('/sub', [
+                'middleware' => 'scopes:create-sub',
+                'uses' => 'CategoryController@store'
+            ]);
         });
     }
 );

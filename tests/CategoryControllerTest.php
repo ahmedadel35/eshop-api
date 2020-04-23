@@ -69,15 +69,15 @@ class CategoryControllerTest extends TestCase
             ->seeJsonContains(['parent' => $sub->parent->toArray()]);
     }
 
-    public function testUserCanCreateSubCategory()
+    public function testOnlyAuthrizedUserCanCreateSubCategory()
     {
-        $this->withoutExceptionHandling();
-        $this->passportSignIn();
+        // $this->withoutExceptionHandling();
+        $this->passportSignIn(null, ['create-sub']);
 
         /** @var \App\Category $c */
         $c = Category::whereNull('category_id')
-            ->limit(1)
-            ->get('id')[0];
+            ->limit(2)
+            ->get('id')[1];
         $name = 'some name';
 
         $this->post(self::BASE_URL . 'sub', [
@@ -87,5 +87,10 @@ class CategoryControllerTest extends TestCase
             ->seeJson(['name' => $name]);
 
         $this->seeInDatabase('categories', ['name' => $name]);
+
+        // user without authorized scope
+        $this->passportSignIn();
+        $this->post(self::BASE_URL . 'sub', [])
+            ->seeStatusCode(403);
     }
 }

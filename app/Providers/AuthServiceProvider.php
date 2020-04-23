@@ -46,5 +46,9 @@ class AuthServiceProvider extends ServiceProvider
         Passport::personalAccessTokensExpireIn(
             Carbon::now()->addWeeks(2)
         );
+
+        Passport::tokensCan([
+            'create-sub' => 'Create Sub Categories'
+        ]);
     }
 }

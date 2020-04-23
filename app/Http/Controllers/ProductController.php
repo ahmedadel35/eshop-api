@@ -34,6 +34,18 @@ class ProductController extends Controller
     }
 
     /**
+     * Display a listing of the resource by parent category slug.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function indexSubCat(string $slug, int $perPage = 50)
+    {
+        return response()->json(
+            Product::whereCategorySlug($slug)->paginate($perPage)
+        );
+    }
+
+    /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request

@@ -43,6 +43,10 @@ $router->group(
                 $router->get('ids[/{perPage:[0-9]+}]', 'ProductController@indexIds');
                 $router->get('list[/{perPage:[0-9]+}]', 'ProductController@index');
                 $router->get('{slug}', 'ProductController@show');
+                $router->get(
+                    'sub/{slug:[a-z0-9]+(?:-[a-z0-9]+)*}[/{perPage:[0-9]+}]',
+                    'ProductController@indexSubCat'
+                );
             }
         );
     }

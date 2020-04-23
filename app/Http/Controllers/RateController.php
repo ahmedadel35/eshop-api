@@ -41,8 +41,9 @@ class RateController extends Controller
     {
         $r = (object) $this->validate($request, self::VALIDATE_ROLES);
 
-        $p = Product::without('rates')->whereSlug($slug)
-            ->get('id')[0];
+        $p = Product::without('rates')
+            ->whereSlug($slug)
+            ->get(['id', 'user_id'])[0];
         $userId = auth()->guard('api')->id();
 
         $found = Rate::selectRaw('COUNT(id) as c_id')
@@ -50,7 +51,7 @@ class RateController extends Controller
             ->whereProductId($p->id)
             ->get('c_id')[0];
 
-        if ((int)$found->c_id > 0) {
+        if ($userId === (int) $p->user_id || (int) $found->c_id > 0) {
             abort(403);
         }
 

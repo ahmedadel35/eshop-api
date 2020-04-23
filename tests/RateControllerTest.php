@@ -60,6 +60,24 @@ class RateControllerTest extends TestCase
         ])->seeStatusCode(403);
     }
 
+    public function testUserCanNotRateOwnedProduct()
+    {
+        $user = $this->passportSignIn();
+
+        $p = Product::whereUserId($user->id)
+            ->without('rates')
+            ->get()[0];
+
+        [$p, $baseUrl] = $this->getBaseUrl($p->id);
+
+        $message = 'some words combined';
+
+        $this->post($baseUrl, [
+            'rate' => random_int(1, 5),
+            'message' => $message
+        ])->seeStatusCode(403);
+    }
+
     private function getBaseUrl(
         int $productId = null
     ): array {

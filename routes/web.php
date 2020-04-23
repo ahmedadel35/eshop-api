@@ -17,6 +17,13 @@ $router->get('/', function () use ($router) {
     return $router->app->version();
 });
 
-$router->get('/all', function() {
-    return \App\Category::limit(500)->get()->toJson();
-});
+$router->group(
+    ['middleware' => ['auth:api', 'throttle:30,1']],
+    function () use ($router) {
+        // categories
+        $router->group(['prefix' => 'categories'],
+        function () use ($router) {
+            $router->get('base', 'CategoryController@index');
+        });
+    }
+);

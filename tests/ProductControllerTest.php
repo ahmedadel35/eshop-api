@@ -52,6 +52,7 @@ class ProductControllerTest extends TestCase
         $this->passportSignIn();
 
         $p = Product::find(random_int(1, 1500));
+        unset($p->rates);
 
         $this->get(self::BASE_URL . $p->slug)
             ->seeStatusCode(200)

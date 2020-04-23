@@ -17,7 +17,7 @@ class ProductController extends Controller
     public function index(int $perPage = self::PER_PAGE)
     {
         return response()->json(
-            Product::paginate($perPage, ['id'])
+            Product::without('rates')->paginate($perPage, ['id'])
         );
     }
 
@@ -29,7 +29,7 @@ class ProductController extends Controller
     public function indexIds(int $perPage = self::PER_PAGE)
     {
         return response()->json(
-            Product::paginate($perPage, ['id'])
+            Product::without('rates')->paginate($perPage, ['id'])
         );
     }
 
@@ -41,7 +41,7 @@ class ProductController extends Controller
     public function indexSubCat(string $slug, int $perPage = 50)
     {
         return response()->json(
-            Product::whereCategorySlug($slug)->paginate($perPage)
+            Product::without('rates')->whereCategorySlug($slug)->paginate($perPage)
         );
     }
 

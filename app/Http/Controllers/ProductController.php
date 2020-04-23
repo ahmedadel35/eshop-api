@@ -169,8 +169,18 @@ class ProductController extends Controller
      * @param  \App\Product  $product
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Product $product)
+    public function destroy(string $slug)
     {
-        //
+        $product = Product::without('rates')
+            ->whereSlug($slug)
+            ->get()[0];
+
+        if (Gate::denies('delete', $product)) {
+            abort(403);
+        }
+
+        $product->delete();
+
+        return response()->json([], 204);
     }
 }

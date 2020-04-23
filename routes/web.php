@@ -51,6 +51,7 @@ $router->group(
 
                 $router->post('', 'ProductController@store');
                 $router->post('{slug}/patch', 'ProductController@update');
+                $router->post('{slug}/delete', 'ProductController@destroy');
             }
         );
     }

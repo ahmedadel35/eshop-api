@@ -224,6 +224,40 @@ class ProductControllerTest extends TestCase
             ->seeStatusCode(204);
     }
 
+    public function testUserCanDeleteOnlyOwnedProducts()
+    {
+        // authrized user
+        $user = $this->passportSignIn();
+
+        $p = factory(Product::class)->create([
+            'user_id' => $user->id
+        ]);
+
+        $this->post(self::BASE_URL . $p->slug . '/delete')
+            ->seeStatusCode(204);
+
+        // unauthrized user
+        $p = factory(Product::class)->create([
+            'user_id' => $user->id
+        ]);
+        $this->passportSignIn(25);
+        $this->post(self::BASE_URL . $p->slug . '/delete')
+            ->seeStatusCode(403);
+    }
+
+    public function testAdminCanDeleteAnyProduct()
+    {
+        $user = $this->passportSignIn(1);
+        $this->assertTrue($user->isAdmin());
+
+        $p = factory(Product::class)->create([
+            'user_id' => 7
+        ]);
+
+        $this->post(self::BASE_URL . $p->slug . '/delete')
+            ->seeStatusCode(204);
+    }
+
     public function loadingAllProductsDataProvider(): array
     {
         return [

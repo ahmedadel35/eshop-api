@@ -67,6 +67,7 @@ class ProductPolicy
      */
     public function delete(User $user, Product $product)
     {
-        //
+        return $user->isAdmin() ||
+            $user->id === (int) $product->user_id;
     }
 }

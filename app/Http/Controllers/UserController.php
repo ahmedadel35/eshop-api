@@ -25,6 +25,17 @@ class UserController extends Controller
         );
     }
 
+    public function indexIds(int $perPage = self::PER_PAGE)
+    {
+        if (!auth()->guard('api')->user()->isAdmin()) {
+            abort(403);
+        }
+
+        return response()->json(
+            User::paginate($perPage, 'id')
+        );
+    }
+
     /**
      * Show the form for creating a new resource.
      *

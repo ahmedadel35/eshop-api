@@ -5,6 +5,7 @@ use Laravel\Lumen\Testing\DatabaseTransactions;
 
 class UserControllerTest extends TestCase
 {
+    use DatabaseTransactions;
     public const BASE_URL = '/user/';
 
     public function testOnlyAdminCanLoadUsersList()
@@ -24,5 +25,14 @@ class UserControllerTest extends TestCase
 
         $this->get('user/list')
             ->seeStatusCode(403);
+    }
+
+    public function testOnlyAdminCanLoadUsersIds()
+    {
+        $user = $this->passportSignIn(1);
+        $this->assertTrue($user->isAdmin());
+
+        $this->get('user/list')
+            ->seeStatusCode(200);
     }
 }

@@ -41,7 +41,17 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $req = $this->validate($request, [
+            'parent_id' => 'required|numeric|min:1|exists:categories,id',
+            'name' => 'required|string|min:3|max:255'
+        ]);
+        
+        $sub = Category::create([
+            'category_id' => $req['parent_id'],
+            'name' => $req['name']
+        ]);
+
+        return response()->json($sub, 201);
     }
 
     /**
@@ -55,17 +65,6 @@ class CategoryController extends Controller
         return response()->json(
             Category::where('slug', $slug)->with('parent')->get()
         );
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Category  $category
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Category $category)
-    {
-        //
     }
 
     /**

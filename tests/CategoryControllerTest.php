@@ -68,4 +68,24 @@ class CategoryControllerTest extends TestCase
             ->seeJsonContains(['name' => $sub->name])
             ->seeJsonContains(['parent' => $sub->parent->toArray()]);
     }
+
+    public function testUserCanCreateSubCategory()
+    {
+        $this->withoutExceptionHandling();
+        $this->passportSignIn();
+
+        /** @var \App\Category $c */
+        $c = Category::whereNull('category_id')
+            ->limit(1)
+            ->get('id')[0];
+        $name = 'some name';
+
+        $this->post(self::BASE_URL . 'sub', [
+            'parent_id' => $c->id,
+            'name' => $name
+        ])->seeStatusCode(201)
+            ->seeJson(['name' => $name]);
+
+        $this->seeInDatabase('categories', ['name' => $name]);
+    }
 }

@@ -150,10 +150,11 @@ abstract class TestCase extends BaseTestCase
         return $this;
     }
 
-    public function passportSignIn(User $user = null): User
-    {
-        $user = $user ?? factory(User::class)->create();
-        Passport::actingAs($user);
+    public function passportSignIn(
+        ?int $user_id = 4, array $scopes = []
+    ): User {
+        $user = User::find($user_id ?? 4);
+        Passport::actingAs($user, $scopes);
 
         return $user;
     }

@@ -5,10 +5,23 @@ namespace App\Http\Controllers;
 use App\Category;
 use App\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Gate;
 
 class ProductController extends Controller
 {
     public const PER_PAGE = 50;
+    private const VALIDATE = [
+        'category' => 'required|numeric|exists:categories,id',
+        'name' => 'required|string',
+        'brand' => 'required|string',
+        'info' => 'required|string|min:10',
+        'price' => 'required|numeric|min:1',
+        'amount' => 'required|numeric|min:1',
+        'save' => 'required|numeric|min:0|max:100',
+        'color' => 'required|string',
+        'is_used' => 'sometimes'
+    ];
 
     /**
      * Display a listing of the resource.
@@ -54,17 +67,7 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        $req = (object) $this->validate($request, [
-            'category' => 'required|numeric|exists:categories,id',
-            'name' => 'required|string',
-            'brand' => 'required|string',
-            'info' => 'required|string|min:10',
-            'price' => 'required|numeric|min:1',
-            'amount' => 'required|numeric|min:1',
-            'save' => 'required|numeric|min:0|max:100',
-            'color' => 'required|string',
-            'is_used' => 'sometimes'
-        ]);
+        $req = (object) $this->validate($request, self::VALIDATE);
 
         $sc = Category::find($req->category);
 
@@ -134,9 +137,30 @@ class ProductController extends Controller
      * @param  \App\Product  $product
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Product $product)
+    public function update(Request $request, string $slug)
     {
-        //
+        $req = (object) $this->validate($request, Arr::except(self::VALIDATE, 'category'));
+
+        $product = Product::without('rates')
+            ->whereSlug($slug)
+            ->get()[0];
+
+        if (Gate::denies('update', $product)) {
+            abort(403);
+        }
+
+        $product->name = $req->name;
+        $product->brand = $req->brand;
+        $product->info = $req->info;
+        $product->price = $req->price;
+        $product->amount = $req->amount;
+        $product->save = $req->save;
+        $product->color = explode(',', $req->color);
+        $product->is_used = isset($req->is_used) ? false : true;
+
+        $product->update();
+
+        return response()->json([], 204);
     }
 
     /**

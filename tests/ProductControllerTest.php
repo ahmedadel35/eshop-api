@@ -155,6 +155,75 @@ class ProductControllerTest extends TestCase
             ->seeStatusCode(201);
     }
 
+    public function testUserCanNotUpdateProductWithInvalidData()
+    {
+        $this->passportSignIn();
+
+        $p = Product::find(5);
+
+        $this->post(self::BASE_URL . $p->slug . '/patch', [])
+        ->seeStatusCode(422);
+    }
+
+    public function testUserCanUpdateProductOnlyOwnedProducts()
+    {
+        // authrized user
+        $user = $this->passportSignIn();
+
+        $p = factory(Product::class)->create([
+            'user_id' => $user->id
+        ]);
+        
+        $pData = [
+            'name' => $p->name,
+            'brand' => $p->brand,
+            'info' => $p->info,
+            'price' => $p->price,
+            'amount' => $p->amount,
+            'save' => $p->save,
+            'color' => implode(',', $p->color),
+            'is_used' => $p->is_used
+        ];
+
+        $this->post(self::BASE_URL . $p->slug . '/patch', $pData)
+            ->seeStatusCode(204);
+
+        // unauthorized user
+        $this->passportSignIn(8);
+        $this->post(self::BASE_URL . $p->slug . '/patch', $pData)
+            ->seeStatusCode(403);
+    }
+
+    public function testSuperUserOrAdminCanUpdateAnyProduct()
+    {
+        $p = factory(Product::class)->create([
+            'user_id' => 25
+        ]);
+
+        $pData = [
+            'name' => $p->name . 'wzcasd asdwc',
+            'brand' => $p->brand,
+            'info' => $p->info,
+            'price' => $p->price,
+            'amount' => $p->amount,
+            'save' => $p->save,
+            'color' => implode(',', $p->color),
+            'is_used' => $p->is_used
+        ];
+
+        // super user
+        $user = $this->passportSignIn(2);
+        $this->assertTrue($user->isSuper());
+        $this->post(self::BASE_URL . $p->slug . '/patch', $pData)
+            ->seeStatusCode(204);
+
+        // admin user
+        $user = $this->passportSignIn(1);
+        $this->assertTrue($user->isAdmin());
+        $this->post(self::BASE_URL . $p->slug . '/patch', $pData)
+            ->seeStatusCode(204);
+    }
+
     public function loadingAllProductsDataProvider(): array
     {
         return [

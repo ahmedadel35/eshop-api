@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Policies\ProductPolicy;
+use App\Product;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Gate;
@@ -50,5 +52,7 @@ class AuthServiceProvider extends ServiceProvider
         Passport::tokensCan([
             'create-sub' => 'Create Sub Categories'
         ]);
+
+        Gate::policy(Product::class, ProductPolicy::class);
     }
 }

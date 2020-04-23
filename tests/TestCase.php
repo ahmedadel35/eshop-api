@@ -1,8 +1,10 @@
 <?php
 
+use App\User;
 use Laravel\Lumen\Testing\TestCase as BaseTestCase;
 use Illuminate\Contracts\Debug\ExceptionHandler;
 use Illuminate\Validation\ValidationException;
+use Laravel\Passport\Passport;
 use Symfony\Component\Console\Application as ConsoleApplication;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -146,6 +148,14 @@ abstract class TestCase extends BaseTestCase
         });
 
         return $this;
+    }
+
+    public function passportSignIn(User $user = null): User
+    {
+        $user = $user ?? factory(User::class)->create();
+        Passport::actingAs($user);
+
+        return $user;
     }
 
     /**

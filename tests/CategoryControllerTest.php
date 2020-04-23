@@ -24,9 +24,7 @@ class CategoryControllerTest extends TestCase
     public function testUserCanGetBaseCategoriesList()
     {
         // $this->withoutExceptionHandling();
-        Passport::actingAs(
-            factory(User::class)->create()
-        );
+        $this->passportSignIn();
 
         $this->get(self::BASE_URL . 'base')
             ->seeStatusCode(200)
@@ -37,9 +35,7 @@ class CategoryControllerTest extends TestCase
 
     public function testUserCanGetSubCategoriesIds()
     {
-        Passport::actingAs(
-            factory(User::class)->create()
-        );
+        $this->passportSignIn();
 
         $this->get(self::BASE_URL . 'sub/ids')
             ->seeStatusCode(200)
@@ -48,14 +44,28 @@ class CategoryControllerTest extends TestCase
 
     public function testUserCanGetSubCategoriesList()
     {
-        Passport::actingAs(
-            factory(User::class)->create()
-        );
+        $this->passportSignIn();
 
         $this->get(self::BASE_URL . 'sub/list')
             ->seeStatusCode(200)
             ->seeJsonEquals(
                 Category::whereNotNull('category_id')->with('parent')->get()->toArray()
             );
+    }
+
+    public function testUserCanGetSubCategoryWithSlug()
+    {
+        $this->passportSignIn();
+
+        /** @var \App\Category $sub */
+        $sub = (Category::whereNotNull('category_id')
+            ->get())->first();
+
+        $sub->loadMissing('parent');
+
+        $this->get(self::BASE_URL . 'sub/' . $sub->slug)
+            ->seeStatusCode(200)
+            ->seeJsonContains(['name' => $sub->name])
+            ->seeJsonContains(['parent' => $sub->parent->toArray()]);
     }
 }

@@ -26,6 +26,7 @@ $router->group(
             $router->get('base', 'CategoryController@index');
             $router->get('sub/ids', 'CategoryController@getSubIds');
             $router->get('sub/list', 'CategoryController@getSubList');
+            $router->get('/sub/{slug}', 'CategoryController@show');
         });
     }
 );

@@ -1,5 +1,6 @@
 <?php
 
+use App\Product;
 use Laravel\Lumen\Testing\DatabaseMigrations;
 use Laravel\Lumen\Testing\DatabaseTransactions;
 
@@ -42,6 +43,17 @@ class ProductControllerTest extends TestCase
             ->seeJsonContains(
                 ['current_page' => 1, 'per_page' => 20]
             );
+    }
+
+    public function testshowingProductWithSlug()
+    {
+        $this->passportSignIn();
+
+        $p = Product::find(random_int(1, 1500));
+
+        $this->get(self::BASE_URL . $p->slug)
+            ->seeStatusCode(200)
+            ->seeJson($p->toArray());
     }
 
     public function loadingAllProductsDataProvider(): array

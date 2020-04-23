@@ -42,6 +42,7 @@ $router->group(
             function () use ($router) {
                 $router->get('ids[/{perPage:[0-9]+}]', 'ProductController@indexIds');
                 $router->get('list[/{perPage:[0-9]+}]', 'ProductController@index');
+                $router->get('{slug}', 'ProductController@show');
             }
         );
     }

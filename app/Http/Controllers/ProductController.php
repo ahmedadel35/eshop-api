@@ -50,9 +50,11 @@ class ProductController extends Controller
      * @param  \App\Product  $product
      * @return \Illuminate\Http\Response
      */
-    public function show(Product $product)
+    public function show(string $slug)
     {
-        //
+        return response()->json(
+            Product::where('slug', $slug)->get()
+        );
     }
 
     /**

@@ -72,6 +72,12 @@ $router->group(
                 );
 
                 $router->get('{slug:[a-z0-9]+(?:-[a-z0-9]+)*}', 'ProductController@show');
+
+                // rates
+                $router->get(
+                    '{slug:[a-z0-9]+(?:-[a-z0-9]+)*}/rates[/{perPage:[0-9]+}]',
+                    'RateController@index'
+                );
             }
         );
     }

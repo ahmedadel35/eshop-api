@@ -65,15 +65,28 @@ class RateController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Undocumented function
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Rate  $rate
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @param string $slug product slug
+     * @param integer $id rate id
+     * @return void
      */
-    public function update(Request $request, Rate $rate)
-    {
-        //
+    public function update(
+        Request $request,
+        string $slug,
+        int $id
+    ) {
+        $r = (object) $this->validate($request, self::VALIDATE_ROLES);
+
+        $rate = Rate::findOrFail($id);
+
+        $rate->rate = $r->rate;
+        $rate->message = $r->message;
+
+        $rate->update();
+
+        return response()->json([], 204);
     }
 
     /**

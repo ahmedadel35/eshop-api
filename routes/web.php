@@ -82,6 +82,10 @@ $router->group(
                     '{slug:[a-z0-9]+(?:-[a-z0-9]+)*}/rates',
                     'RateController@store'
                 );
+                $router->post(
+                    '{slug:[a-z0-9]+(?:-[a-z0-9]+)*}/rates/{rate}',
+                    'RateController@update'
+                );
             }
         );
     }

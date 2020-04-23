@@ -1,6 +1,7 @@
 <?php
 
 use App\Product;
+use App\Rate;
 use Laravel\Lumen\Testing\DatabaseMigrations;
 use Laravel\Lumen\Testing\DatabaseTransactions;
 
@@ -76,6 +77,26 @@ class RateControllerTest extends TestCase
             'rate' => random_int(1, 5),
             'message' => $message
         ])->seeStatusCode(403);
+    }
+
+    public function testUserCanUpdateRate()
+    {
+        $this->withoutExceptionHandling();
+        $user = $this->passportSignIn();
+
+        $rate = Rate::with('product')
+            ->whereUserId($user->id)
+            ->get()[0];
+        [$p, $baseUrl] = $this->getBaseUrl($rate->product->id);
+
+        $message = 'some thing';
+
+        $this->post($baseUrl . '/' . $rate->id, [
+            'rate' => $rate->rate,
+            'message' => $message
+        ])->seeStatusCode(204);
+
+        $this->seeInDatabase('rates', ['message' => $message]);
     }
 
     private function getBaseUrl(

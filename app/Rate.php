@@ -28,6 +28,11 @@ class Rate extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function product(): BelongsTo
+    {
+        return $this->belongsTo(Product::class);
+    }
+
     public function getUpdatedAttribute() : string
     {
         return $this->updated_at ? $this->updated_at->diffForHumans() : '';

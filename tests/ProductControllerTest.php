@@ -258,6 +258,27 @@ class ProductControllerTest extends TestCase
             ->seeStatusCode(204);
     }
 
+    public function testProductsCanBeFilteredByBrands()
+    {
+        $this->passportSignIn();
+
+        $sc = Category::whereNotNull('category_id')->first();
+        $products = Product::whereCategorySlug($sc->slug)->limit(30)->get();
+
+        $brands = Arr::pluck($products, 'brand');
+        $brands = Arr::shuffle($brands);
+        $brands = implode(',', $brands);
+
+        $this->get(
+            self::BASE_URL.
+            'filter/sub/'.
+            $sc->slug.
+            '/brands/'.
+            $brands
+            )->seeStatusCode(200)
+            ->seeJsonContains(['name' => $products->first()->name]);
+    }
+
     public function loadingAllProductsDataProvider(): array
     {
         return [

@@ -47,6 +47,21 @@ class ProductController extends Controller
         );
     }
 
+    public function indexByBrands(
+        string $slug,
+        string $brands,
+        int $perPage = self::PER_PAGE
+    ) {
+        $brands = explode(',', $brands);
+
+        return response()->json(
+            Product::with(['pCat'])
+                ->whereCategorySlug($slug)
+                ->whereIn('brand', $brands)
+                ->paginate($perPage)
+        );
+    }
+
     /**
      * Display a listing of the resource by parent category slug.
      *

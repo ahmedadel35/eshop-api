@@ -27,7 +27,7 @@ $router->group(
                 $router->get('base', 'CategoryController@index');
                 $router->get('sub/ids', 'CategoryController@getSubIds');
                 $router->get('sub/list', 'CategoryController@getSubList');
-                $router->get('/sub/{slug}', 'CategoryController@show');
+                $router->get('/sub/{slug:[a-z0-9]+(?:-[a-z0-9]+)*}', 'CategoryController@show');
 
                 $router->post('/sub', [
                     'middleware' => 'scopes:create-sub',
@@ -42,7 +42,7 @@ $router->group(
             function () use ($router) {
                 $router->get('ids[/{perPage:[0-9]+}]', 'ProductController@indexIds');
                 $router->get('list[/{perPage:[0-9]+}]', 'ProductController@index');
-                $router->get('{slug}', 'ProductController@show');
+                $router->get('{slug:[a-z0-9]+(?:-[a-z0-9]+)*}', 'ProductController@show');
                 $router->get(
                     'sub/{slug:[a-z0-9]+(?:-[a-z0-9]+)*}[/{perPage:[0-9]+}]',
                     'ProductController@indexSubCat'
@@ -50,8 +50,12 @@ $router->group(
                 $router->get('collect/{ids:[0-9]+(?:,[0-9]+)*}', 'ProductController@showCollection');
 
                 $router->post('', 'ProductController@store');
-                $router->post('{slug}/patch', 'ProductController@update');
-                $router->post('{slug}/delete', 'ProductController@destroy');
+                $router->post('{slug:[a-z0-9]+(?:-[a-z0-9]+)*}/patch', 'ProductController@update');
+                $router->post('{slug:[a-z0-9]+(?:-[a-z0-9]+)*}/delete', 'ProductController@destroy');
+
+                // filters
+                $router->get(
+                    'filter/sub/{slug:[a-z0-9]+(?:-[a-z0-9]+)*}/brands/{brands}[/{perPage}]', 'ProductController@indexByBrands');
             }
         );
     }

@@ -88,5 +88,11 @@ $router->group(
                 );
             }
         );
+
+        // user
+        $router->group(['prefix' => 'user'],
+        function () use ($router) {
+            $router->get('list[/{perPage:[0-9]+}]', 'UserController@index');
+        });
     }
 );

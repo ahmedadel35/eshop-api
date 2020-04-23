@@ -13,11 +13,11 @@ class CategoryControllerTest extends TestCase
     use DatabaseTransactions;
 
 
-    private const BASE_URL = '/categories/';
+    private const BASE_URL = '/category/';
 
     public function testOnlyAuthrizedAppCanGetBaseCategoriesList()
     {
-        $this->get(self::BASE_URL . '/base')
+        $this->get(self::BASE_URL . 'base')
             ->assertResponseStatus(401);
     }
 

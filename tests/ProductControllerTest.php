@@ -11,7 +11,7 @@ class ProductControllerTest extends TestCase
 {
     use DatabaseTransactions;
 
-    private const BASE_URL = '/products/';
+    private const BASE_URL = '/product/';
 
     /**
      * @dataProvider loadingAllProductsDataProvider

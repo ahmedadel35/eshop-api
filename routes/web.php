@@ -22,7 +22,7 @@ $router->group(
     function () use ($router) {
         // categories
         $router->group(
-            ['prefix' => 'categories'],
+            ['prefix' => 'category'],
             function () use ($router) {
                 $router->get('base', 'CategoryController@index');
                 $router->get('sub/ids', 'CategoryController@getSubIds');
@@ -38,7 +38,7 @@ $router->group(
 
         // products
         $router->group(
-            ['prefix' => 'products'],
+            ['prefix' => 'product'],
             function () use ($router) {
                 $router->get('ids[/{perPage:[0-9]+}]', 'ProductController@indexIds');
                 $router->get('list[/{perPage:[0-9]+}]', 'ProductController@index');

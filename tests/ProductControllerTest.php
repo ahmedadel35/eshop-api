@@ -94,16 +94,16 @@ class ProductControllerTest extends TestCase
         $products = Product::all();
 
         $ids = Arr::random($products->pluck('id')->toArray(), 10);
-        
+
         // load with rates
         $this->get(
-            self::BASE_URL . 'collect/'.implode(',', $ids) . '?rates=1'
+            self::BASE_URL . 'collect/' . implode(',', $ids) . '?rates=1'
         )->seeStatusCode(200)
             ->seeJsonContains((Product::find($ids[0]))->toArray());
 
         // load without rates
         $this->get(
-            self::BASE_URL . 'collect/'.implode(',', $ids)
+            self::BASE_URL . 'collect/' . implode(',', $ids)
         )->seeStatusCode(200)
             ->seeJsonContains((Product::without('rates')->find($ids[0]))->toArray());
     }
@@ -116,10 +116,10 @@ class ProductControllerTest extends TestCase
         $products = Product::all();
 
         $ids = Arr::random($products->pluck('id')->toArray(), 501);
-        
+
         // load with rates
         $this->get(
-            self::BASE_URL . 'collect/'.implode(',', $ids) . '?rates=1'
+            self::BASE_URL . 'collect/' . implode(',', $ids) . '?rates=1'
         )->seeStatusCode(413);
     }
 
@@ -162,7 +162,7 @@ class ProductControllerTest extends TestCase
         $p = Product::find(5);
 
         $this->post(self::BASE_URL . $p->slug . '/patch', [])
-        ->seeStatusCode(422);
+            ->seeStatusCode(422);
     }
 
     public function testUserCanUpdateProductOnlyOwnedProducts()
@@ -173,7 +173,7 @@ class ProductControllerTest extends TestCase
         $p = factory(Product::class)->create([
             'user_id' => $user->id
         ]);
-        
+
         $pData = [
             'name' => $p->name,
             'brand' => $p->brand,
@@ -270,13 +270,39 @@ class ProductControllerTest extends TestCase
         $brands = implode(',', $brands);
 
         $this->get(
-            self::BASE_URL.
-            'filter/sub/'.
-            $sc->slug.
-            '/brands/'.
-            $brands
-            )->seeStatusCode(200)
+            self::BASE_URL .
+                'filter/sub/' .
+                $sc->slug .
+                '/brands/' .
+                $brands
+        )->seeStatusCode(200)
             ->seeJsonContains(['name' => $products->first()->name]);
+    }
+
+    public function testProductsCanBeFilteredByCondtion()
+    {
+        $this->passportSignIn();
+
+        $sc = Category::whereNotNull('category_id')->first();
+        $products = Product::whereCategorySlug($sc->slug)->where('is_used', true)->get();
+
+        $this->get(
+            self::BASE_URL . 'filter/sub/' . $sc->slug .
+                '/condition/1'
+        )->seeStatusCode(200)
+            ->seeJsonContains([
+                'name' => $products->last()->name,
+                'per_page' => ProductController::PER_PAGE
+            ]);
+
+        $this->get(
+            self::BASE_URL . 'filter/sub/' . $sc->slug .
+                '/condition/1/20'
+        )->seeStatusCode(200)
+            ->seeJsonContains([
+                'name' => $products->last()->name,
+                'per_page' => 20
+            ]);
     }
 
     public function loadingAllProductsDataProvider(): array

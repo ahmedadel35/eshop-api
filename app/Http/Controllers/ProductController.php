@@ -62,6 +62,19 @@ class ProductController extends Controller
         );
     }
 
+    public function indexByCondition(
+        string $slug,
+        int $cond,
+        int $perPage = self::PER_PAGE
+    ) {
+        return response()->json(
+            Product::with(['pCat'])
+                ->whereCategorySlug($slug)
+                ->whereIsUsed(!!$cond)
+                ->paginate($perPage)
+        );
+    }
+
     /**
      * Display a listing of the resource by parent category slug.
      *

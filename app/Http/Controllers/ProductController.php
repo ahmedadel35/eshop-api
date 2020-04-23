@@ -7,14 +7,18 @@ use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
+    public const PER_PAGE = 50;
+
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(int $perPage = self::PER_PAGE)
     {
-        //
+        return response()->json(
+            Product::paginate($perPage, ['id'])
+        );
     }
 
     /**
@@ -22,7 +26,7 @@ class ProductController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function indexIds(int $perPage = 50)
+    public function indexIds(int $perPage = self::PER_PAGE)
     {
         return response()->json(
             Product::paginate($perPage, ['id'])

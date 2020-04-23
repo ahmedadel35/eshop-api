@@ -327,6 +327,20 @@ class ProductControllerTest extends TestCase
             ->seeJsonContains($products->toArray());
     }
 
+    public function testSearchingForProducts()
+    {
+        $this->withoutExceptionHandling();
+        $this->passportSignIn();
+
+        $p = Product::find(5);
+        $p->loadMissing('pCat');
+
+        $this->get(self::BASE_URL . 'find?q=' . $p->name)
+            ->seeStatusCode(200)
+            ->seeJsonContains(['name' => $p->name])
+            ->seeJsonContains(['name' => $p->pCat->name]);
+    }
+
     public function loadingAllProductsDataProvider(): array
     {
         return [

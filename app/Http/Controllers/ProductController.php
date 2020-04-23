@@ -98,10 +98,27 @@ class ProductController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function indexSubCat(string $slug, int $perPage = 50)
-    {
+    public function indexSubCat(
+        string $slug,
+        int $perPage = self::PER_PAGE
+    ) {
         return response()->json(
             Product::without('rates')->whereCategorySlug($slug)->paginate($perPage)
+        );
+    }
+
+    public function search(
+        Request $request,
+        int $perPage = self::PER_PAGE
+    ) {
+        $q = $request->get('q');
+
+        return response()->json(
+            Product::with('pCat')
+                ->where('name', 'LIKE', "%$q%")
+                ->orWhere('brand', 'LIKE', "%$q%")
+                ->latest()
+                ->paginate($perPage)
         );
     }
 

@@ -42,7 +42,11 @@ $router->group(
             function () use ($router) {
                 $router->get('ids[/{perPage:[0-9]+}]', 'ProductController@indexIds');
                 $router->get('list[/{perPage:[0-9]+}]', 'ProductController@index');
-                $router->get('{slug:[a-z0-9]+(?:-[a-z0-9]+)*}', 'ProductController@show');
+                // search by slug or name
+                $router->get(
+                    'find[/{perPage:[0-9]+}]',
+                    'ProductController@search'
+                );
                 $router->get(
                     'sub/{slug:[a-z0-9]+(?:-[a-z0-9]+)*}[/{perPage:[0-9]+}]',
                     'ProductController@indexSubCat'
@@ -62,11 +66,12 @@ $router->group(
                     'filter/sub/{slug:[a-z0-9]+(?:-[a-z0-9]+)*}/condition/{cond:[0-1]}[/{perPage:[0-9]+}]',
                     'ProductController@indexByCondition'
                 );
-
                 $router->get(
                     'filter/sub/{slug:[a-z0-9]+(?:-[a-z0-9]+)*}/price/{prices}[/{perPage:[0-9]+}]',
                     'ProductController@indexByPrice'
                 );
+
+                $router->get('{slug:[a-z0-9]+(?:-[a-z0-9]+)*}', 'ProductController@show');
             }
         );
     }

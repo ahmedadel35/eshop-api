@@ -6,6 +6,7 @@ use App\Category;
 use App\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 
 class ProductController extends Controller
@@ -72,6 +73,23 @@ class ProductController extends Controller
                 ->whereCategorySlug($slug)
                 ->whereIsUsed(!!$cond)
                 ->paginate($perPage)
+        );
+    }
+
+    public function indexByPrice(
+        string $slug,
+        string $prices,
+        int $perPage = self::PER_PAGE
+    ) {
+        [$from, $to] = explode(',', $prices);
+
+        return response()->json(
+            Product::with('pCat')
+                ->whereCategorySlug($slug)
+                ->whereBetween(
+                    DB::raw('price-(save/100*price)'),
+                    [$from, $to]
+                )->paginate($perPage)
         );
     }
 

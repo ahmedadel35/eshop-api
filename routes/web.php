@@ -40,11 +40,11 @@ $router->group(
         $router->group(
             ['prefix' => 'product'],
             function () use ($router) {
-                $router->get('ids[/{perPage:[0-9]+:[0-9]+}]', 'ProductController@indexIds');
-                $router->get('list[/{perPage:[0-9]+:[0-9]+}]', 'ProductController@index');
+                $router->get('ids[/{perPage:[0-9]+}]', 'ProductController@indexIds');
+                $router->get('list[/{perPage:[0-9]+}]', 'ProductController@index');
                 $router->get('{slug:[a-z0-9]+(?:-[a-z0-9]+)*}', 'ProductController@show');
                 $router->get(
-                    'sub/{slug:[a-z0-9]+(?:-[a-z0-9]+)*}[/{perPage:[0-9]+:[0-9]+}]',
+                    'sub/{slug:[a-z0-9]+(?:-[a-z0-9]+)*}[/{perPage:[0-9]+}]',
                     'ProductController@indexSubCat'
                 );
                 $router->get('collect/{ids:[0-9]+(?:,[0-9]+)*}', 'ProductController@showCollection');
@@ -55,9 +55,18 @@ $router->group(
 
                 // filters
                 $router->get(
-                    'filter/sub/{slug:[a-z0-9]+(?:-[a-z0-9]+)*}/brands/{brands}[/{perPage:[0-9]+}]', 'ProductController@indexByBrands');
+                    'filter/sub/{slug:[a-z0-9]+(?:-[a-z0-9]+)*}/brands/{brands}[/{perPage:[0-9]+}]',
+                    'ProductController@indexByBrands'
+                );
                 $router->get(
-                    'filter/sub/{slug:[a-z0-9]+(?:-[a-z0-9]+)*}/condition/{cond:[0-1]}[/{perPage:[0-9]+}]', 'ProductController@indexByCondition');
+                    'filter/sub/{slug:[a-z0-9]+(?:-[a-z0-9]+)*}/condition/{cond:[0-1]}[/{perPage:[0-9]+}]',
+                    'ProductController@indexByCondition'
+                );
+
+                $router->get(
+                    'filter/sub/{slug:[a-z0-9]+(?:-[a-z0-9]+)*}/price/{prices}[/{perPage:[0-9]+}]',
+                    'ProductController@indexByPrice'
+                );
             }
         );
     }

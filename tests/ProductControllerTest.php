@@ -305,6 +305,28 @@ class ProductControllerTest extends TestCase
             ]);
     }
 
+    public function testProductsCanBeFilteredByPrice()
+    {
+        $this->withoutExceptionHandling();
+        $this->passportSignIn();
+        $sc = Category::whereNotNull('category_id')->first();
+
+        $from = 2000;
+        $to = 50000;
+
+        $products = Product::with('pCat')
+            ->whereCategorySlug($sc->slug)
+            ->where(
+                DB::raw('price-(save/100*price)'), [$from, $to]
+            )->get();
+
+        $this->get(
+            self::BASE_URL . 'filter/sub/' . $sc->slug .
+            '/price/' . implode(',', [$from, $to])
+        )->seeStatusCode(200)
+            ->seeJsonContains($products->toArray());
+    }
+
     public function loadingAllProductsDataProvider(): array
     {
         return [

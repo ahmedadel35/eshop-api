@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Category;
 use App\Product;
 use Illuminate\Http\Request;
 
@@ -53,7 +54,40 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $req = (object) $this->validate($request, [
+            'category' => 'required|numeric|exists:categories,id',
+            'name' => 'required|string',
+            'brand' => 'required|string',
+            'info' => 'required|string|min:10',
+            'price' => 'required|numeric|min:1',
+            'amount' => 'required|numeric|min:1',
+            'save' => 'required|numeric|min:0|max:100',
+            'color' => 'required|string',
+            'is_used' => 'sometimes'
+        ]);
+
+        $sc = Category::find($req->category);
+
+        $req->user_id = auth()->guard('api')->id();
+        $req->category_slug = $sc->slug;
+        $req->is_used = isset($req->is_used) ? false : true;
+        $req->color = explode(',', $req->color);
+        $req->img = [
+            mt_rand(1, 15) . '.jpg',
+            mt_rand(1, 15) . '.jpg',
+            mt_rand(1, 15) . '.jpg'
+        ];
+
+        unset($req->category);
+
+        $p = $sc->products()->create((array) $req);
+
+        return response()->json(
+            $p->withoutRelations('rates')
+                ->makeHidden('rateAvg')
+                ->toArray(),
+            201
+        );
     }
 
     /**

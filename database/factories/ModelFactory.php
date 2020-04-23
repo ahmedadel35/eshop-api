@@ -68,7 +68,7 @@ $factory->define(Product::class, function ($faker) {
         'save' => rand(0, 99),
         'amount' => rand(1, 25),
         'is_used' => $faker->boolean(),
-        'brand' => ['somecompany', 'apple', 'nokia', 'microsoft', 'another company'],
+        'brand' => Arr::random(['somecompany', 'apple', 'nokia', 'microsoft', 'another company']),
         'color' => [$faker->colorName, $faker->colorName],
         'img' => [rand(1, 15) . '.jpg', rand(1, 15) . '.jpg', rand(1, 15) . '.jpg']
     ];

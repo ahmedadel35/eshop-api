@@ -48,6 +48,8 @@ $router->group(
                     'ProductController@indexSubCat'
                 );
                 $router->get('collect/{ids:[0-9]+(?:,[0-9]+)*}', 'ProductController@showCollection');
+
+                $router->post('', 'ProductController@store');
             }
         );
     }

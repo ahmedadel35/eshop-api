@@ -123,6 +123,38 @@ class ProductControllerTest extends TestCase
         )->seeStatusCode(413);
     }
 
+    public function testStoringNewProductRejectedWithInvalidData()
+    {
+        $this->passportSignIn();
+
+        $this->post(self::BASE_URL, [])
+            ->seeStatusCode(422);
+    }
+
+    public function testUserCanStoreNewProduct()
+    {
+        $this->withoutExceptionHandling();
+        $this->passportSignIn();
+
+        $sc = Category::whereNotNull('category_id')->find(2);
+        $p = factory(Product::class)->make();
+
+        $pData = [
+            'category' => $sc->id,
+            'name' => $p->name,
+            'brand' => $p->brand,
+            'info' => $p->info,
+            'price' => $p->price,
+            'amount' => $p->amount,
+            'save' => $p->save,
+            'color' => implode(',', $p->color),
+            'is_used' => $p->is_used
+        ];
+
+        $this->post(self::BASE_URL, $pData)
+            ->seeStatusCode(201);
+    }
+
     public function loadingAllProductsDataProvider(): array
     {
         return [

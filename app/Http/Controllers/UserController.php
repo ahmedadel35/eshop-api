@@ -83,6 +83,10 @@ class UserController extends Controller
         $user = auth()->guard('api')->user();
         $perPage = $request->get('perPage', 30);
 
+        if (($user->isAdmin() || $user->isSuper()) && $userId) {
+            $user = User::findOrFail($userId);
+        }
+
         $orders = Order::where('user_id', $user->id)
             ->with('product')
             ->latest()

@@ -100,4 +100,27 @@ class UserControllerTest extends TestCase
             ->seeStatusCode(200)
             ->seeJsonContains(['address' => $order->address]);
     }
+
+    public function testAdminOrSuperUsersCanLoadAnyUserOrders()
+    {
+        $userId = random_int(200, 1000);
+        $order = factory(Order::class)->create([
+            'user_id' => $userId
+        ]);
+        unset($order->sent);
+
+        // load as admin
+        $admin = $this->passportSignIn(1);
+        $this->assertTrue($admin->isAdmin());
+        $this->get(self::BASE_URL . 'orders/' . $userId)
+            ->seeStatusCode(200)
+            ->seeJsonContains($order->toArray());
+
+        // load as super
+        $super = $this->passportSignIn(2);
+        $this->assertTrue($super->isSuper());
+        $this->get(self::BASE_URL . 'orders/' . $userId)
+            ->seeStatusCode(200)
+            ->seeJsonContains($order->toArray());
+    }
 }

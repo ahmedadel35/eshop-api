@@ -123,4 +123,18 @@ class UserControllerTest extends TestCase
             ->seeStatusCode(200)
             ->seeJsonContains($order->toArray());
     }
+
+    public function testUserCanLoadOwnedProducts()
+    {
+        $user = $this->passportSignIn();
+
+        $lastProduct = Product::without('rates')
+            ->whereUserId($user->id)
+            ->latest()
+            ->first();
+
+        $this->get(self::BASE_URL . 'products')
+            ->seeStatusCode(200)
+            ->seeJsonContains(['slug' => $lastProduct->slug]);
+    }
 }

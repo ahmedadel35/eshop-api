@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Order;
+use App\Product;
 use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -81,7 +82,7 @@ class UserController extends Controller
     public function showOrders(Request $request, ?int $userId = null)
     {
         $user = auth()->guard('api')->user();
-        $perPage = $request->get('perPage', 30);
+        $perPage = $request->get('perPage', self::PER_PAGE);
 
         if (($user->isAdmin() || $user->isSuper()) && $userId) {
             $user = User::findOrFail($userId);
@@ -96,14 +97,24 @@ class UserController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\User  $user
+     * Display the user products
+     * 
+     * @param integer $userId
      * @return \Illuminate\Http\Response
      */
-    public function edit(User $user)
-    {
-        //
+    public function showProducts(
+        Request $request,
+        ?int $userId = null
+    ) {
+        $user = auth()->guard('api')->user();
+        $perPage = $request->get('perPage', self::PER_PAGE);
+
+        return response()->json(
+            Product::without('rates')
+                ->whereUserId($user->id)
+                ->paginate($perPage)
+        );
+
     }
 
     /**

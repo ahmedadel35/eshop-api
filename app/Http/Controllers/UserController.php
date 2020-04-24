@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Order;
 use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -38,9 +39,9 @@ class UserController extends Controller
     }
 
     /**
-     * Display the specified resource.
-     *
-     * @param  \App\User  $user
+     * Display the user profile
+     * 
+     * @param integer $userId
      * @return \Illuminate\Http\Response
      */
     public function show(int $userId = null)
@@ -69,6 +70,25 @@ class UserController extends Controller
             'proudcts_count' => $state[2],
             'total_user_paymenst' => $state[3]
         ] + $adminArr);
+    }
+
+    /**
+     * Display the user orders
+     * 
+     * @param integer $userId
+     * @return \Illuminate\Http\Response
+     */
+    public function showOrders(Request $request, ?int $userId = null)
+    {
+        $user = auth()->guard('api')->user();
+        $perPage = $request->get('perPage', 30);
+
+        $orders = Order::where('user_id', $user->id)
+            ->with('product')
+            ->latest()
+            ->paginate($perPage);
+
+        return response()->json($orders->toArray());
     }
 
     /**

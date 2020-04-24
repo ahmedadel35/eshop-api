@@ -86,4 +86,18 @@ class UserControllerTest extends TestCase
                 'proudcts_count' => $products_count,
             ]);
     }
+
+    public function testUserCanLoadSubmittedOrders()
+    {
+        $this->withoutExceptionHandling();
+        $user = $this->passportSignIn(3);
+
+        $order = factory(Order::class)->create([
+            'user_id' => $user->id
+        ]);
+
+        $this->get(self::BASE_URL . 'orders')
+            ->seeStatusCode(200)
+            ->seeJsonContains(['address' => $order->address]);
+    }
 }

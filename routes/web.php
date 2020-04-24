@@ -95,6 +95,7 @@ $router->group(
             $router->get('list[/{perPage:[0-9]+}]', 'UserController@index');
             $router->get('ids[/{perPage:[0-9]+}]', 'UserController@indexIds');
             $router->get('/profile[/{userId:[0-9]+}]', 'UserController@show');
+            $router->get('/orders[/{userId:[0-9]+}]', 'UserController@showOrders');
         });
     }
 );

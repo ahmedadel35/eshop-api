@@ -50,7 +50,8 @@ class AuthServiceProvider extends ServiceProvider
         );
 
         Passport::tokensCan([
-            'create-sub' => 'Create Sub Categories'
+            'create-sub' => 'Create Sub Categories',
+            'patch-role' => 'Change User Role'
         ]);
 
         Gate::policy(Product::class, ProductPolicy::class);

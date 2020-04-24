@@ -118,7 +118,6 @@ class UserController extends Controller
                 ->whereUserId($user->id)
                 ->paginate($perPage)
         );
-
     }
 
     /**
@@ -128,9 +127,23 @@ class UserController extends Controller
      * @param  \App\User  $user
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, User $user)
+    public function update(Request $request, int $userId)
     {
-        //
+        // abort if not admin
+        if (!auth()->guard('api')->user()->isAdmin()) {
+            abort(403);
+        }
+
+        $req = (object) $this->validate($request, [
+            'role' => 'sometimes|numeric|min:0|max:1'
+        ]);
+
+        $user = User::findOrFail($userId);
+
+        $user->role = (bool) $req->role;
+        $user->update();
+
+        return response()->json([], 204);
     }
 
     private function loadUserStats($user): array

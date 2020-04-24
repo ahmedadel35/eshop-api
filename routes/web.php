@@ -97,6 +97,11 @@ $router->group(
             $router->get('/profile[/{userId:[0-9]+}]', 'UserController@show');
             $router->get('/orders[/{userId:[0-9]+}]', 'UserController@showOrders');
             $router->get('/products[/{userId:[0-9]+}]', 'UserController@showProducts');
+
+            $router->post('{userId:[0-9]+}/role/patch', [
+                'uses' => 'UserController@update',
+                'middleware' => 'scopes:patch-role'
+            ]);
         });
     }
 );

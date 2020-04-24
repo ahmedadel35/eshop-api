@@ -160,4 +160,38 @@ class UserControllerTest extends TestCase
                 'per_page' => '3'
             ]);
     }
+
+    public function testOnlyAdminWithoutScopesCanNotPatchUserRole()
+    {
+        $admin = $this->passportSignIn(1);
+        $this->assertTrue($admin->isAdmin());
+
+        $userId = random_int(20, 1500);
+
+        $this->post(self::BASE_URL . $userId . '/role/patch')
+            ->seeStatusCode(403);
+
+        // not admin user
+        $normal = $this->passportSignIn(60);
+        $this->assertFalse($normal->isAdmin());
+        $this->post(self::BASE_URL . $userId . '/role/patch')
+            ->seeStatusCode(403);
+    }
+
+    public function testAdminCanNotPatchUserRole()
+    {
+        $admin = $this->passportSignIn(1, ['patch-role']);
+        $this->assertTrue($admin->isAdmin());
+
+        $userId = random_int(20, 1500);
+        $this->post(self::BASE_URL . $userId . '/role/patch', [
+            'role' => 1
+        ])->seeStatusCode(204);
+        $this->assertTrue(User::find($userId)->isSuper());
+
+        $this->post(self::BASE_URL . $userId . '/role/patch', [
+            'role' => 0
+        ])->seeStatusCode(204);
+        $this->assertFalse(User::find($userId)->isSuper());
+    }
 }

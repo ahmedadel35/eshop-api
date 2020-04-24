@@ -137,4 +137,27 @@ class UserControllerTest extends TestCase
             ->seeStatusCode(200)
             ->seeJsonContains(['slug' => $lastProduct->slug]);
     }
+
+    public function testAnyUserCanLoadOtherProducts()
+    {
+        $this->passportSignIn(30);
+
+        $user = User::find(random_int(4, 9));
+
+        $lastProduct = Product::without('rates')
+            ->whereUserId($user->id)
+            ->latest()
+            ->first();
+
+        $this->get(self::BASE_URL . 'products/' . $user->id)
+            ->seeStatusCode(200)
+            ->seeJsonContains(['slug' => $lastProduct->slug]);
+
+        $this->get(self::BASE_URL . 'products/' . $user->id . '?perPage=3')
+            ->seeStatusCode(200)
+            ->seeJsonContains([
+                'slug' => $lastProduct->slug,
+                'per_page' => '3'
+            ]);
+    }
 }

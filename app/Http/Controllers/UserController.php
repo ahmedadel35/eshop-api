@@ -109,6 +109,10 @@ class UserController extends Controller
         $user = auth()->guard('api')->user();
         $perPage = $request->get('perPage', self::PER_PAGE);
 
+        if ($userId) {
+            $user = User::findOrFail($userId);
+        }
+
         return response()->json(
             Product::without('rates')
                 ->whereUserId($user->id)

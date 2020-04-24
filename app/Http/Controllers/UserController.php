@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class UserController extends Controller
 {
@@ -37,35 +38,37 @@ class UserController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
      * Display the specified resource.
      *
      * @param  \App\User  $user
      * @return \Illuminate\Http\Response
      */
-    public function show(User $user)
+    public function show(int $userId = null)
     {
-        //
+        $user = auth()->guard('api')->user();
+        $adminArr = [];
+
+        if ($user->isAdmin()) {
+            if ($userId && is_int($userId)) {
+                $user = User::find($userId);
+                $state = $this->loadUserStats($user);
+            } else {
+                $state = $this->loadAdminStats($user);
+                $adminArr = [
+                    'users_count' => $state[4],
+                    'reviews_count' => $state[5]
+                ];
+            }
+        } else {
+            $state = $this->loadUserStats($user);
+        }
+
+        return response()->json([
+            'orders_count' => $state[0],
+            'delivered_orders' => $state[1],
+            'proudcts_count' => $state[2],
+            'total_user_paymenst' => $state[3]
+        ] + $adminArr);
     }
 
     /**
@@ -91,14 +94,73 @@ class UserController extends Controller
         //
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\User  $user
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(User $user)
+    private function loadUserStats($user): array
     {
-        //
+        $countOrders = DB::table('orders')
+            ->selectRaw('COUNT(id) as oc')
+            ->where('user_id', $user->id)
+            ->get();
+
+        $sentOrders = DB::table('orders')
+            ->selectRaw('COUNT(id) as sc')
+            ->where('user_id', $user->id)
+            ->where('sent', true)
+            ->get();
+
+        $products = DB::table('products')
+            ->selectRaw('COUNT(id) as pc')
+            ->where('user_id', $user->id)
+            ->get();
+
+        $totalPaid = DB::table('orders')
+            ->selectRaw('SUM(total) as paid')
+            ->where('user_id', $user->id)
+            ->get();
+
+        return [
+            $countOrders[0]->oc,
+            $sentOrders[0]->sc,
+            $products[0]->pc,
+            $totalPaid[0]->paid,
+            0,
+            0
+        ];
+    }
+
+    private function loadAdminStats($user)
+    {
+        $productsCount = DB::table('products')
+            ->selectRaw('COUNT(id) as pc')
+            ->get();
+
+        $countOrders = DB::table('orders')
+            ->selectRaw('COUNT(id) as oc')
+            ->get();
+
+        $sentOrders = DB::table('orders')
+            ->selectRaw('COUNT(id) as sc')
+            ->where('sent', true)
+            ->get();
+
+        $totalPaid = DB::table('orders')
+            ->selectRaw('SUM(total) as paid')
+            ->get();
+
+        $usersCount = DB::table('users')
+            ->selectRaw('COUNT(id) as uc')
+            ->get();
+
+        $revCount = DB::table('rates')
+            ->selectRaw('COUNT(id) as rc')
+            ->get();
+
+        return [
+            $countOrders[0]->oc,
+            $sentOrders[0]->sc,
+            $productsCount[0]->pc,
+            $totalPaid[0]->paid,
+            $usersCount[0]->uc,
+            $revCount[0]->rc
+        ];
     }
 }

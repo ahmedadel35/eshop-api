@@ -13,9 +13,8 @@
 |
 */
 
-$router->get('/', function () use ($router) {
-    return $router->app->version();
-});
+$router->get('/', 'PublicController@index');
+$router->get('/inspire', 'PublicController@inspireMe');
 
 $router->group(
     ['middleware' => ['auth:api', 'throttle:30,1']],

@@ -43,11 +43,11 @@ class AuthServiceProvider extends ServiceProvider
 
         LumenPassport::routes($this->app);
 
-        LumenPassport::tokensExpireIn(Carbon::now()->addDay());
-        Passport::refreshTokensExpireIn(Carbon::now()->addDays(5));
-        Passport::personalAccessTokensExpireIn(
-            Carbon::now()->addWeeks(2)
-        );
+        // LumenPassport::tokensExpireIn(Carbon::now()->addDay());
+        // Passport::refreshTokensExpireIn(Carbon::now()->addDays(5));
+        // Passport::personalAccessTokensExpireIn(
+        //     Carbon::now()->addWeeks(2)
+        // );
 
         Passport::tokensCan([
             'create-sub' => 'Create Sub Categories',

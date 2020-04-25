@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Product;
 use App\Rate;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 
 class RateController extends Controller
 {
@@ -43,8 +44,14 @@ class RateController extends Controller
 
         $p = Product::without('rates')
             ->whereSlug($slug)
-            ->get(['id', 'user_id'])[0];
+            ->first(['id', 'user_id']);
+
+        if (!$p) {
+            return response()->json(['product' => ['product not found']], 404);
+        }
+
         $userId = auth()->guard('api')->id();
+
 
         $found = Rate::selectRaw('COUNT(id) as c_id')
             ->whereUserId($userId)
@@ -58,7 +65,7 @@ class RateController extends Controller
         $rate = $p->rates()->create([
             'user_id' => $userId,
             'rate' => $r->rate,
-            'message' => $r->message
+            'message' => $r->message ?? ''
         ]);
 
         return response()->json($rate, 201);
@@ -82,7 +89,7 @@ class RateController extends Controller
         $rate = Rate::findOrFail($id);
 
         $rate->rate = $r->rate;
-        $rate->message = $r->message;
+        $rate->message = $r->message ?? '';
 
         $rate->update();
 

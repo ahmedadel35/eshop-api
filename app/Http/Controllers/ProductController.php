@@ -32,7 +32,7 @@ class ProductController extends Controller
     public function index(int $perPage = self::PER_PAGE)
     {
         return response()->json(
-            Product::without('rates')->paginate($perPage, ['id'])
+            Product::without('rates')->paginate($perPage)
         );
     }
 
@@ -44,7 +44,7 @@ class ProductController extends Controller
     public function indexIds(int $perPage = self::PER_PAGE)
     {
         return response()->json(
-            Product::without('rates')->paginate($perPage, ['id'])
+            DB::table('products')->paginate($perPage, ['id'])
         );
     }
 
@@ -57,6 +57,7 @@ class ProductController extends Controller
 
         return response()->json(
             Product::with(['pCat'])
+                ->without('rates')
                 ->whereCategorySlug($slug)
                 ->whereIn('brand', $brands)
                 ->paginate($perPage)
@@ -70,6 +71,7 @@ class ProductController extends Controller
     ) {
         return response()->json(
             Product::with(['pCat'])
+                ->without('rates')
                 ->whereCategorySlug($slug)
                 ->whereIsUsed(!!$cond)
                 ->paginate($perPage)
@@ -85,6 +87,7 @@ class ProductController extends Controller
 
         return response()->json(
             Product::with('pCat')
+                ->without('rates')
                 ->whereCategorySlug($slug)
                 ->whereBetween(
                     DB::raw('price-(save/100*price)'),

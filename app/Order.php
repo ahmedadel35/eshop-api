@@ -11,6 +11,6 @@ class Order extends Model
 
     public function product(): BelongsTo
     {
-        return $this->belongsTo(Product::class)->with('pCat');
+        return $this->belongsTo(Product::class)->with('pCat')->without('rates');
     }
 }

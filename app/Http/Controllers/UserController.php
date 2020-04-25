@@ -69,7 +69,7 @@ class UserController extends Controller
             'orders_count' => $state[0],
             'delivered_orders' => $state[1],
             'proudcts_count' => $state[2],
-            'total_user_paymenst' => $state[3]
+            'total_user_payment' => $state[3] ?? 0
         ] + $adminArr);
     }
 
